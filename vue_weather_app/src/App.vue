@@ -13,29 +13,29 @@
                 return "городе " + this.city
             },
             showTemp() {
-                return "Сейчас: " + this.info.main.temp
+                return this.info.main.temp
             },
             showFeelsLike() {
-                return "Ощущается: " + this.info.main.feels_like
+                return this.info.main.feels_like
             },
             showTempMin() {
-                return "Минимум сегодня: " + this.info.main.temp_min
+                return this.info.main.temp_min
             },
             showTempMax() {
-                return "Максимум сегодня: " + this.info.main.temp_max
+                return this.info.main.temp_max
             },
         },
         methods: {
             getWeather() {
-                if(this.city.trim().length < 2) {
+                axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&units=metric&appid=756c3c4bc3bab24102880c3fbe2b4539`)
+                        .then(res => (this.info = res.data))
+
+                if(this.info == null) {
                     this.error = "Некорректно указан город"
                     return false
                 }
                 else {
                     this.error = ""
-
-                    axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&units=metric&appid=756c3c4bc3bab24102880c3fbe2b4539`)
-                        .then(res => (this.info = res.data))
                 }
             }
         }
@@ -51,21 +51,39 @@
             <button v-if="city != '' "@click="getWeather()">Узнать погоду</button>
             <button disabled v-else>Введите название города</button>
         </div>
-        <p className="error">{{ error }}</p>
+        <p className="error" v-if="info == null">{{ error }}</p>
         <div className="weather_info" v-if="info != null">
-            <p>{{ showTemp }}</p>
-            <p>{{ showFeelsLike }}</p>
-            <p>{{ showTempMin }}</p>
-            <p>{{ showTempMax }}</p>
+            <div className="weather_field">
+                <p>Сейчас:</p>
+                <p>{{ showTemp }} °С</p>
+            </div>
+            <div className="weather_field">
+                <p>Ощущается:</p>
+                <p>{{ showFeelsLike }} °С</p>
+            </div>
+            <div className="weather_field">
+                <p>Минимум сегодня:</p>
+                <p>{{ showTempMin }} °С</p>
+            </div>
+            <div className="weather_field">
+                <p>Максимум сегодня:</p>
+                <p>{{ showTempMax }} °С</p>
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+    template {
+        display: flex;
+        justify-content: center; /* центрирование по главной оси (горизонтально) */
+        align-items: center;     /* центрирование по поперечной оси (вертикально) */
+        height: 100vh;
+    }
     .wrapper {
         font-family: Arial, Helvetica, sans-serif;
         background-color: rgb(47, 0, 92);
-        width: 900px;
+        width: 766px;
         height: 500px;
         border-radius: 30px;
         text-align: center;
@@ -77,6 +95,7 @@
     }
     .input_block {
         min-height: 100px;
+        margin-bottom: 45px;
     }
     .wrapper input {
         outline: none;
@@ -119,5 +138,69 @@
     .error {
         margin-top: 50px;
         color: brown;
+    }
+    .weather_field {
+        width: 390px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-sizing: border-box;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 20px;
+        padding: 10px;
+        line-height: 1;
+        font-size: 18px;
+        border-radius: 10px;
+        background: linear-gradient(110deg,rgb(47, 0, 92) 45%, rgba(87, 199, 115, 1) 85%, rgb(131, 255, 241) 100%);
+        color: rgb(47, 0, 92);
+        text-align: center;
+    }
+    .weather_field p {
+        margin: 0;
+        padding: 0;
+    }
+    .weather_field p:first-child {
+        color: white;
+    }
+    .weather_field p:last-child {
+        font-weight: 700;
+    }
+    @media (max-width: 768px) {
+        .wrapper {
+            width: 90vw;
+            margin-top: 5vw;
+            margin-bottom: 5vw;
+        }
+        .weather_field {
+            width: 80%;
+        }
+    }
+    @media (max-width: 550px) {
+        .input_block {
+            width: 80%;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            margin-top: 20px;
+        }
+        .input_block input {
+            box-sizing: border-box;
+            margin: auto;
+            width: 90%;
+        }
+        .input_block button {
+            box-sizing: border-box;
+            margin: auto;
+            width: 90%;
+        }
+    }
+    @media (max-width: 424px) {
+        .weather_field p {
+            font-size: 14px;
+        }
     }
 </style>
